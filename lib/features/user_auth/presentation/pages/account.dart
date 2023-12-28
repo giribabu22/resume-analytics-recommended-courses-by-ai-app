@@ -5,8 +5,11 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../global/common/toast.dart';
 import 'dart:async';
+import '../widgets/footer.dart';
+import 'chat.dart';
 import 'login.dart';
 
 class Account extends StatefulWidget{
@@ -14,10 +17,10 @@ class Account extends StatefulWidget{
   @override
   State createState() => _AccountState();
 }
-final user = Hive.box('user').get('user');
 
 class _AccountState extends State<Account>{
   late Future<List> items;
+  final user = Hive.box('user').get('user');
 
   Future<List> gettingData() async {
     try{
@@ -60,6 +63,14 @@ class _AccountState extends State<Account>{
                     showToast(message: 'Logout Successfull');
                   },
                 ),
+               Row(
+                  children: [
+                    const Text('You can ask your questions? '),
+                    IconButton(icon: const Icon(Icons.chat),tooltip: 'AI bot', onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(builder:(context) => const ChatScreen() ));
+                    }),
+                  ],
+                ),
               ],
             )
           )
@@ -77,7 +88,6 @@ class _AccountState extends State<Account>{
           }
 
           late List? courses = snapshot.data;
-          print('list $courses');
           return SingleChildScrollView(
             child:  Center(
               child: Padding(
@@ -88,51 +98,77 @@ class _AccountState extends State<Account>{
                     child: Column(
                       children: <Widget> [
                           Card(
-                            elevation: 10,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(15),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 10),
-                                  Text("Email: " + user?['email'], style: const TextStyle(fontSize: 16)),
-                                  const SizedBox(height: 10),
-                                  Text("Interests: " + user?['intrests'], style: const TextStyle(fontSize: 16)),
-                                  const SizedBox(height: 10),
-                                  Text("Skills: " + user?['skills'], style: const TextStyle(fontSize: 16)),
-                                  const SizedBox(height: 10),
-                                  // // Text("Experience: " + profileData?['experience'], style: const TextStyle(fontSize: 16)),
-                                  // const SizedBox(height: 10),
-                                  // Text("Programming Languages: " + profileData?['programming_languages'], style: const TextStyle(fontSize: 16)),
-                                  // const SizedBox(height: 10),
-                                  // Text("Resonal Language: " + profileData?['resonal_language'], style: const TextStyle(fontSize: 16)),
-                                  // const SizedBox(height: 10),
-                                  // Text("Known Frameworks: " + profileData?['known_framworks'], style: const TextStyle(fontSize: 16)),
-                                  // const SizedBox(height: 10),
-                                  // Text("Learning Plan: " + profileData?['learning_plan'] , style: const TextStyle(fontSize: 16)),
-                                ],
-                              ),
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          color: Colors.deepOrange, // Add this line
+                          child: Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 10),
+                                Text(
+                                  "Email: " + user?['email'],
+                                  style: const TextStyle(fontSize: 16, color: Colors.white), // Add this line
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  "Interests: " + user?['intrests'],
+                                  style: const TextStyle(fontSize: 16, color: Colors.white), // Add this line
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  "Skills: " + user?['skills'],
+                                  style: const TextStyle(fontSize: 16, color: Colors.white), // Add this line
+                                ),
+                                const SizedBox(height: 10),
+                                // // Text("Experience: " + profileData?['experience'], style: const TextStyle(fontSize: 16)),
+                                // const SizedBox(height: 10),
+                                // Text("Programming Languages: " + profileData?['programming_languages'], style: const TextStyle(fontSize: 16)),
+                                // const SizedBox(height: 10),
+                                // Text("Resonal Language: " + profileData?['resonal_language'], style: const TextStyle(fontSize: 16)),
+                                // const SizedBox(height: 10),
+                                // Text("Known Frameworks: " + profileData?['known_framworks'], style: const TextStyle(fontSize: 16)),
+                                // const SizedBox(height: 10),
+                                // Text("Learning Plan: " + profileData?['learning_plan'] , style: const TextStyle(fontSize: 16)),
+                              ],
                             ),
                           ),
-                        for (var course in courses!)                        
+                        ),
+                        Text(
+                          courses!.isNotEmpty 
+                            ? 'You are interested in these courses!' 
+                            : 'No courses selected.',
+                          style: const TextStyle(fontSize: 16),
+                        )
+                        ,
+                        for (var course in courses)
                           Card(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                              child: Padding(
-                                padding: const EdgeInsets.all(35),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                            color: Colors.blueGrey[50], // Adjust the background color as desired
+                            child: Padding(
+                              padding: const EdgeInsets.all(35),
+                              child: SizedBox( // Set card size
+                                width: 300, // Adjust card width as needed
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const SizedBox(height: 10),
+                                    const SizedBox(height: 4),
                                     Text("Course Name: " + course?['course_name'], style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 10),
-                                    // Text("Course Description: " + course?['course_description'], style: const TextStyle(fontSize: 10)),
-                                    // const SizedBox(height: 10),
+                                    IconButton(
+                                      icon: const Icon(Icons.open_in_new),
+                                      onPressed:  () async{
+                                        launch(course?['course_url']);
+                                      },
+                                    ),
+                                    const SizedBox(height: 4),
                                     // Text("Course Category: " + course?['course_category'], style: const TextStyle(fontSize: 10)),
                                   ],
                                 ),
                               ),
-                          )
+                            ),
+                          ),
                       ]
                     )
                   )
@@ -143,6 +179,7 @@ class _AccountState extends State<Account>{
         );
         }
       ),
+      bottomNavigationBar: const FooterWidget()
     );
   }
 }

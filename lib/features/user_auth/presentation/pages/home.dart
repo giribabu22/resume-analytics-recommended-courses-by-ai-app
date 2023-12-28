@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import '../../../../global/common/toast.dart';
+import '../widgets/footer.dart';
 import '../widgets/prodect_widget.dart';
 import 'dart:async';
 import 'Account.dart';
+import 'chat.dart';
 import 'login.dart';
 
 class Home extends StatefulWidget{
@@ -27,12 +29,28 @@ class _HomeState extends State<Home>{
           return course;
         }
         final user = Hive.box('user').get('user');
-        print('user $user');
-        final url = "https://merd-api.merakilearn.org/developers/recommended/courses/${user['id']}";      
-        final response = await  http.get(Uri.parse(url));
-        var dataOfCourse = jsonDecode(response.body);
-        Hive.box('user').put('ai_course', dataOfCourse);
-        return dataOfCourse;
+        var c = 0;
+        while (c < 4){
+          final url = "https://merd-api.merakilearn.org/developers/recommended/courses/${user['id']}";
+          final response = await  http.get(Uri.parse(url));
+          var dataOfCourse = jsonDecode(response.body);
+          if ( dataOfCourse.length > 2){
+            Hive.box('user').put('ai_course', dataOfCourse);
+            return dataOfCourse;
+          }
+          c++;
+        }
+
+        return [{
+          "course_title": "reload the page",
+          "category": "reload the page",
+          "url": "reload the page",
+          "rating": "",
+          "enrolledStudents": "",
+          "reviews": "",
+          "Certificate": "",
+          "Price": ""
+        }];
       } else {
         showToast(message: 'Network error ');
         return ['Network error'];
@@ -67,17 +85,15 @@ class _HomeState extends State<Home>{
                   showToast(message: 'Logout Successfull');
                 },
               ),
-              const SizedBox(
-                width: 140,
-                child:  TextField(
-                  decoration: InputDecoration(
-                  hintText: 'Search',
-                  border: InputBorder.none,
-                  prefixIcon: Icon(Icons.search),
-                  ),
-                ),
+              Row(
+                children: [
+                  const Text('You can ask your questions? '),
+                  IconButton(icon: const Icon(Icons.chat),tooltip: 'AI bot', onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder:(context) => ChatScreen() ));
+                  }),
+                ],
               ),
-              IconButton(icon: const Icon(Icons.account_box_sharp), onPressed: (){
+              IconButton(icon: const Icon(Icons.account_box_sharp),tooltip: "Profile", onPressed: (){
                 Navigator.push(context, MaterialPageRoute(builder:(context) => const Account() ));
               }),
             ],
@@ -115,14 +131,15 @@ class _HomeState extends State<Home>{
                             sub_titles : 'Category: ${item['category']}\nRating: ${item['rating']}\nEnrolled Students: ${item['enrolledStudents']}\nReviews: ${item['reviews']}\nCertificate: ${item['Certificate']}\nPrice: ${item['Price']}'
                           ),]
                     )
-                  )
-                ]
+                  ),
+                  ]
               ),
             ),
           ),
         );
         }
       ),
+      bottomNavigationBar: const FooterWidget()
     );
   }
 }

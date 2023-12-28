@@ -27,7 +27,7 @@ class _ProductState extends State<Product> {
       var connectivityResult = await (Connectivity().checkConnectivity());
       if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
         final user = Hive.box('user').get('user');
-        print("user['id'] ${user['id'].runtimeType}");
+        
         final url = "https://merd-api.merakilearn.org/developers/courses/resource?course_name=$course_name&developers_id=${user['id']}&course_url=$course_url";
         final response = await  http.get(Uri.parse(url));
         var data = jsonDecode(response.body);

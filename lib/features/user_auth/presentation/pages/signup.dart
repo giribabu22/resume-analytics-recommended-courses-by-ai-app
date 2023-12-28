@@ -36,20 +36,20 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController educationController = TextEditingController();
 
    Future<List<dynamic>?> SignUp() async {
-    // try{
+    try{
       final String email = emailController.text;
       final String password = passwordController.text;
       final String name = nameController.text;
       //
-      final String learningPlan = learningPlanController.text;
-      final String experience = experienceController.text;
-      final String role = roleController.text;
-      final String education = educationController.text;
-      final String resonalLanguage = resonalLanguageController.text;
+      // final String learningPlan = learningPlanController.text;
+      // final String experience = experienceController.text;
+      // final String role = roleController.text;
+      // final String education = educationController.text;
+      // final String resonalLanguage = resonalLanguageController.text;
 
-      final String programmingLanguages = programmingLanguagesController.text;
-      final String knownFramworks = knownFramworksController.text;
-      //
+      // final String programmingLanguages = programmingLanguagesController.text;
+      // final String knownFramworks = knownFramworksController.text;
+      // //
       final String skills = skillsController.text;
       final String interests = interestsController.text;
 
@@ -57,7 +57,6 @@ class _SignUpPageState extends State<SignUpPage> {
       if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
         final url = Uri.parse("https://merd-api.merakilearn.org/developers/create/app?name=$name&email=$email&password=$password&intrests=$interests&skills=$skills");
         final resString = await http.get(url);
-        print('resString $resString');
         final res = jsonDecode(resString.body);
         if (res.containsKey('Error') && res?['Error']) {
           showToast(message: res['message']);
@@ -67,10 +66,9 @@ class _SignUpPageState extends State<SignUpPage> {
           showToast(message: 'Account create successfull');
         }
       }
-    // } catch (e) {
-    //   print('e $e');
-    //    showToast(message: e.toString());
-    // }
+    } catch (e) {
+       showToast(message: e.toString());
+    }
     return null;
   }
 
